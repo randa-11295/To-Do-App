@@ -5,6 +5,7 @@ import TaskCard from "../components/cards/TaskCard";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import PopupReusable from "../components/PopUp/PopupReusable";
+import TaskForm from "../components/Forms/TaskForm";
 const Tasks = () => {
   return (
     <>
@@ -58,7 +59,9 @@ const Tasks = () => {
           <Paper>4</Paper>
         </Grid>
       </Grid>
-      <PopupReusable />
+      <PopupReusable>
+        <TaskForm />
+      </PopupReusable>
     </>
   );
 };
