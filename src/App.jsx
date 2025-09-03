@@ -1,15 +1,12 @@
-
-import './App.css'
+import "./App.css";
+import Tasks from "./pages/Tasks";
 
 function App() {
-
   return (
     <>
-    
-      <h1>test</h1>
-    
+      <Tasks />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
