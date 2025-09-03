@@ -6,7 +6,14 @@ import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
+import { useGetTodos } from "../hooks/useGetTodos";
+import { useEffect } from "react";
+
 const Tasks = () => {
+  const { data: todos, isLoading, isError, error } = useGetTodos();
+  useEffect(() => {
+    console.log({ todos, isLoading, isError, error });
+  }, [todos, isLoading, isError, error]);
   return (
     <>
       <Grid
