@@ -5,23 +5,20 @@
  box-sizing: border-box;
 }
 
-/* يعمل على Chrome, Edge, Safari */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 8px;
-}
+
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #969696;
   border-radius: 8px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #737373;
+  cursor: grab;
 }

@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import Paper from "@mui/material/Paper";
 import TaskCard from "../components/cards/TaskCard";
@@ -13,10 +13,16 @@ const Tasks = () => {
       <Grid
         size={{ xs: 12, md: 2, lg: 3 }}
         sx={{
-          // bgcolor: "secondary.main",
-          height: "100% ",  overflowY: "scroll",
+          px: 1,
+          height: "100% ",
+          overflowY: "scroll",
         }}
       >
+       <Typography variant="h4" color="primary.main" mb={1} fontWeight={700}>
+        Tasks
+       </Typography>
+        <TaskCard />
+        <TaskCard />
         <TaskCard />
         <TaskCard />
         <TaskCard />

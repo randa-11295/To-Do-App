@@ -1,35 +1,30 @@
 
 import Card from "@mui/material/Card";
-import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
-import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-
+import { Stack , Box} from "@mui/material";
 
 
 export default function TaskCard() {
   return (
     <Card variant="outlined" sx={{ mb: 2 }}>
-      {" "}
       <CardContent>
-        <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-          Word of the Day
-        </Typography>
+       <Stack>
         <Typography variant="h5" component="div">
           be test tes
         </Typography>
-        <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-          adjective
-        </Typography>
+        <Box>
+
+        </Box>
+
+       </Stack>
+      
         <Typography variant="body2">
           well meaning and kindly.
-          <br />
-          {'"a benevolent smile"'}
+          well meaning and kindly.
+          well meaning and kindly.    
         </Typography>
       </CardContent>
-      <CardActions>
-        <Button size="small">Learn More</Button>
-      </CardActions>
     </Card>
   );
 }
