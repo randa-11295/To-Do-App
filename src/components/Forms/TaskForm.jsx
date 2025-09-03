@@ -1,38 +1,32 @@
-import React from "react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import {
-  TextField,
-  Button,
-  MenuItem,
-  Box,
-  Typography,
-  Paper,
-} from "@mui/material";
+import { TextField, Button, MenuItem, Box } from "@mui/material";
+import { useAddTodo } from "../../hooks/useAddTodo";
+import { useEffect } from "react";
+import { toDoSchema } from "../../validation/todoSchema";
 
-// Validation Schema using Yup
-const validationSchema = Yup.object({
-  title: Yup.string()
-    .min(3, "Title must be at least 3 characters")
-    .required("Title is required"),
-  description: Yup.string()
-    .min(5, "Description must be at least 5 characters")
-    .required("Description is required"),
-  column: Yup.string().required("Column is required"),
-});
 
 export default function TaskForm() {
+  const { mutate, isPending, isSuccess, isError, error } = useAddTodo();
+
+  useEffect(() => {
+    console.log({ isPending, isSuccess, isError, error });
+  }, [isPending, isSuccess, isError, error]);
+
   const formik = useFormik({
     initialValues: {
       title: "",
       description: "",
       column: "backlog",
     },
-    validationSchema,
+    validationSchema : toDoSchema,
     onSubmit: (values, { resetForm }) => {
-      console.log("Form Data:", values);
-      alert("Task added successfully!");
-      resetForm();
+     console.log("val" ,values);
+      mutate(
+       values,
+        {
+          onSuccess: () => resetForm(),
+        }
+      );
     },
   });
 

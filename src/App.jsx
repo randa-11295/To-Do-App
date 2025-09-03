@@ -1,10 +1,14 @@
 import "./App.css";
 import Tasks from "./pages/Tasks";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
+  const queryClient = new QueryClient();
   return (
     <>
-      <Tasks />
+      <QueryClientProvider client={queryClient}>
+        <Tasks />
+      </QueryClientProvider>
     </>
   );
 }
