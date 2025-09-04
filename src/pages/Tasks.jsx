@@ -7,13 +7,35 @@ import Button from "@mui/material/Button";
 import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
 import { useGetTodos } from "../hooks/useGetTodos";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Tasks = () => {
-  const { data: todos, isLoading, isError, error } = useGetTodos();
+  const [filteredTasks, setFilteredTasks] = useState([]);
+  const { data: tasks, isLoading, isError, error } = useGetTodos();
   useEffect(() => {
-    console.log({ todos, isLoading, isError, error });
-  }, [todos, isLoading, isError, error]);
+    console.log({ tasks, isLoading, isError, error });
+  }, [tasks, isLoading, isError, error]);
+
+  useEffect(() => {
+    if (!tasks) return;
+    const groupedTasks = {
+      backlog: [],
+      in_progress: [],
+      review: [],
+      done: [],
+      other: [],
+    };
+
+    for (const task of tasks) {
+      if (groupedTasks[task.column]) {
+        groupedTasks[task.column].push(task);
+      } else {
+        groupedTasks.other.push(task);
+      }
+    }
+    setFilteredTasks(groupedTasks);
+  }, [tasks]);
+
   return (
     <>
       <Grid
@@ -36,35 +58,29 @@ const Tasks = () => {
           />
           <Button variant="contained">Contained</Button>
         </Grid>
-        <Grid
-          size={{ xs: 12, md: 2, lg: 3 }}
-          sx={{
-            px: 1,
-            height: "100% ",
-            overflowY: "scroll",
-          }}
-        >
-          <Typography variant="h4" color="primary.main" mb={1} fontWeight={700}>
-            Tasks
-          </Typography>
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-          <TaskCard />
-        </Grid>
-        <Grid size={{ xs: 12, md: 2, lg: 3 }}>
-          <Paper>2</Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 2, lg: 3 }}>
-          <Paper>3</Paper>
-        </Grid>
-        <Grid size={{ xs: 12, md: 2, lg: 3 }}>
-          <Paper>4</Paper>
-        </Grid>
+        {["backlog", "in_progress", "review", "done"].map((column) => (
+          <Grid
+            key={column}
+            size={{ xs: 12, md: 2, lg: 3 }}
+            sx={{
+              px: 1,
+              height: "100% ",
+              overflowY: "scroll",
+            }}
+          >
+            <Typography
+              variant="h4"
+              color="primary.main"
+              mb={1}
+              fontWeight={700}
+            >
+              {column.replace("_", " ").toUpperCase()}
+            </Typography>
+            {filteredTasks[column]?.map((task) => (
+              <TaskCard key={task.id + task.title} task={task} />
+            ))}
+          </Grid>
+        ))}
       </Grid>
       <PopupReusable>
         <TaskForm />
