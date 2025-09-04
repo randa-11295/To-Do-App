@@ -3,7 +3,7 @@ import { getTodos } from "../api/todosApi";
 
 export const useGetTodos = () => {
   return useQuery({
-    queryKey: ["todos"],   
+    queryKey: ["task"],   
     queryFn: getTodos, 
     refetchOnWindowFocus: false, 
   });

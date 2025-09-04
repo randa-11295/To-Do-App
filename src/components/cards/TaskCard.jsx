@@ -5,7 +5,7 @@ import { Stack, Box } from "@mui/material";
 import IconBtn from "../Inputs/IconBtn";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-export default function TaskCard({ task }) {
+export default function TaskCard({ task , handleDeleteTask }) {
   return (
     <Card variant="outlined" sx={{ mb: 2 }}>
       <CardContent>
@@ -22,7 +22,7 @@ export default function TaskCard({ task }) {
             <IconBtn title="Edit">
               <EditIcon sx={{ fontSize: "18px" }} />
             </IconBtn>
-            <IconBtn color="error" title="Delete">
+            <IconBtn color="error" title="Delete" handleClick={() => handleDeleteTask(task.id)}>
               <DeleteIcon sx={{ fontSize: "18px" }} />
             </IconBtn>
           </Box>

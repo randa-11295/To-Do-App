@@ -7,10 +7,11 @@ export default function IconBtn({
   title = "click here",
   color = "primary",
   children,
+  handleClick,
 }) {
   return (
     <Tooltip title={title}>
-      <IconButton size="small" color={color} > 
+      <IconButton size="small" color={color} onClick={handleClick}>
         {children}
       </IconButton>
     </Tooltip>

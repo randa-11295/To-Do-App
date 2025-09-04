@@ -1,20 +1,21 @@
-import { Box, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
 import TaskCard from "../components/cards/TaskCard";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
+import { useDeleteTodo } from "../hooks/useDeleteTodo ";
 import { useGetTodos } from "../hooks/useGetTodos";
+import { useUpdateTodo } from "../hooks/useUpdateTodo";
 import { useEffect, useState } from "react";
+import { toDoTypes } from "../utils/consts";
 
 const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
   const { data: tasks, isLoading, isError, error } = useGetTodos();
-  useEffect(() => {
-    console.log({ tasks, isLoading, isError, error });
-  }, [tasks, isLoading, isError, error]);
+  const { mutate: deleteTask } = useDeleteTodo();
+  const { mutate: updateTask } = useUpdateTodo();
 
   useEffect(() => {
     if (!tasks) return;
@@ -36,6 +37,17 @@ const Tasks = () => {
     setFilteredTasks(groupedTasks);
   }, [tasks]);
 
+  const handleDeleteTask = (taskId) => {
+    deleteTask(taskId);
+  };
+
+  const handleUpdateTask = (taskId, updatedTask) => {
+    updateTask({ id: taskId, updatedTask });
+  };
+
+  if (isLoading) return <Typography>Loading...</Typography>;
+  if (isError) return <Typography color="error">{error.message}</Typography>;
+
   return (
     <>
       <Grid
@@ -56,9 +68,10 @@ const Tasks = () => {
             variant="outlined"
             fullWidth
           />
-          <Button variant="contained">Contained</Button>
+          <Button variant="contained">Add Task</Button>
         </Grid>
-        {["backlog", "in_progress", "review", "done"].map((column) => (
+
+        {toDoTypes.map((column) => (
           <Grid
             key={column}
             size={{ xs: 12, md: 2, lg: 3 }}
@@ -74,14 +87,20 @@ const Tasks = () => {
               mb={1}
               fontWeight={700}
             >
-              {column.replace("_", " ").toUpperCase()}
+              {column.replace("_", " ").toLocaleLowerCase()}
             </Typography>
             {filteredTasks[column]?.map((task) => (
-              <TaskCard key={task.id + task.title} task={task} />
+              <TaskCard
+                key={task.id + task.title}
+                task={task}
+                handleDeleteTask={handleDeleteTask}
+                handleUpdateTask={handleUpdateTask}
+              />
             ))}
           </Grid>
         ))}
       </Grid>
+
       <PopupReusable>
         <TaskForm />
       </PopupReusable>
