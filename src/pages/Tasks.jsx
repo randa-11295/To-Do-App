@@ -16,7 +16,6 @@ const Tasks = () => {
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
 
-  // 🟢 Group tasks into columns
   useEffect(() => {
     if (!tasks) return;
     const grouped = {
@@ -37,7 +36,6 @@ const Tasks = () => {
     setFilteredTasks(grouped);
   }, [tasks]);
 
-  // 🟢 Filter tasks based on search term (ignoring `id`)
   const searchedTasks = useMemo(() => {
     if (!searchTerm) return filteredTasks;
 
@@ -56,12 +54,10 @@ const Tasks = () => {
     return newGrouped;
   }, [searchTerm, filteredTasks]);
 
-  // 🟢 Handle delete task
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId);
   };
 
-  // 🟢 Handle open popup for add/update task
   const handleUpdateTask = (task) => {
     setSelectedTask(task);
     setIsPopupOpen(true);
@@ -79,8 +75,8 @@ const Tasks = () => {
     <>
       <Box sx={{ backgroundColor: "#f9f9f9", p: 4, minHeight: "100vh" }}>
         {/* 🔍 Search + Add Task */}
-        <Grid container spacing={2} mb={3} alignItems="center">
-          <Grid item xs={12} md={9}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12}>
             <TextField
               sx={{ backgroundColor: "white", borderRadius: 1 }}
               placeholder="Search tasks..."
@@ -91,7 +87,7 @@ const Tasks = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid item>
             <Button
               variant="contained"
               color="primary"
@@ -103,14 +99,12 @@ const Tasks = () => {
           </Grid>
         </Grid>
 
-        {/* 🟢 Render tasks by columns */}
-        <Grid container spacing={2}>
+        <Grid container spacing={3} >
           {toDoTypes.map((column) => (
             <Grid
+            size={{ xs: 12, md: 6 , lg: 3 }}
               key={column}
               item
-              xs={12}
-              md={3}
               sx={{
                 height: "80vh",
                 overflowY: "auto",
@@ -151,7 +145,6 @@ const Tasks = () => {
         </Grid>
       </Box>
 
-      {/* 🟢 Popup for Add / Edit Task */}
       <PopupReusable
         open={isPopupOpen}
         title={selectedTask.id ? "Edit Task" : "Add New Task"}
