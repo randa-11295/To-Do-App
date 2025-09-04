@@ -7,15 +7,15 @@ import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
 import { useDeleteTodo } from "../hooks/useDeleteTodo ";
 import { useGetTodos } from "../hooks/useGetTodos";
-import { useUpdateTodo } from "../hooks/useUpdateTodo";
 import { useEffect, useState } from "react";
 import { toDoTypes } from "../utils/consts";
 
 const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState([]);
+  const [selectedTask, setSelectedTask] = useState({});
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
-  const { mutate: updateTask } = useUpdateTodo();
 
   useEffect(() => {
     if (!tasks) return;
@@ -41,10 +41,13 @@ const Tasks = () => {
     deleteTask(taskId);
   };
 
-  const handleUpdateTask = (taskId, updatedTask) => {
-    updateTask({ id: taskId, updatedTask });
+  const handleUpdateTask = (selectedTask) => {
+    setSelectedTask(selectedTask);
+    setIsPopupOpen(true);
   };
-
+  const handleControlPopup = (val) => {
+    setIsPopupOpen(val);
+  };
   if (isLoading) return <Typography>Loading...</Typography>;
   if (isError) return <Typography color="error">{error.message}</Typography>;
 
@@ -68,7 +71,9 @@ const Tasks = () => {
             variant="outlined"
             fullWidth
           />
-          <Button variant="contained">Add Task</Button>
+          <Button variant="contained" onClick={() => handleControlPopup(true)}>
+            Add Task
+          </Button>
         </Grid>
 
         {toDoTypes.map((column) => (
@@ -82,7 +87,7 @@ const Tasks = () => {
             }}
           >
             <Typography
-              variant="h4"
+              variant="h5"
               color="primary.main"
               mb={1}
               fontWeight={700}
@@ -101,8 +106,15 @@ const Tasks = () => {
         ))}
       </Grid>
 
-      <PopupReusable>
-        <TaskForm />
+      <PopupReusable
+        open={isPopupOpen}
+        title={selectedTask.id ? "Edit this Task" : "Add New Task"}
+        handleClose={() => handleControlPopup(false)}
+      >
+        <TaskForm
+          selectedTask={selectedTask}
+          handleSelectTask={setSelectedTask}
+        />
       </PopupReusable>
     </>
   );

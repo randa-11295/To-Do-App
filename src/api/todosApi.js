@@ -15,7 +15,10 @@ export const deleteTodo = async (id) => {
   return data;
 };
 
-export const updateTodo = async ({ id, updatedTask }) => {
-  const { data } = await axiosInstance.put(`/task/${id}`, updatedTask);
+export const updateTodo = async (updatedTask) => {
+  const { data } = await axiosInstance.put(
+    `/task/${updatedTask.id}`,
+    updatedTask
+  );
   return data;
 };

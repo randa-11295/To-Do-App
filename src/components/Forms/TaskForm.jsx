@@ -3,30 +3,43 @@ import { TextField, Button, MenuItem, Box } from "@mui/material";
 import { useAddTodo } from "../../hooks/useAddTodo";
 import { useEffect } from "react";
 import { toDoSchema } from "../../validation/todoSchema";
-
-
-export default function TaskForm() {
-  const { mutate, isPending, isSuccess, isError, error } = useAddTodo();
+import { useUpdateTodo } from "../../hooks/useUpdateTodo";
+export default function TaskForm({ selectedTask, handleSelectTask }) {
+  const {
+    mutate: addTask,
+    isPending,
+    isSuccess,
+    isError,
+    error,
+  } = useAddTodo();
+  const { mutate: updateTask } = useUpdateTodo();
 
   useEffect(() => {
     console.log({ isPending, isSuccess, isError, error });
   }, [isPending, isSuccess, isError, error]);
 
   const formik = useFormik({
-    initialValues: {
-      title: "",
-      description: "",
-      column: "backlog",
-    },
-    validationSchema : toDoSchema,
+    initialValues: selectedTask.id
+      ? selectedTask
+      : {
+          title: "",
+          description: "",
+          column: "backlog",
+        },
+    validationSchema: toDoSchema,
     onSubmit: (values, { resetForm }) => {
-     console.log("val" ,values);
-      mutate(
-       values,
-        {
-          onSuccess: () => resetForm(),
-        }
-      );
+      {
+        !selectedTask.id
+          ? addTask(values, {
+              onSuccess: () => resetForm(),
+            })
+          : updateTask(values, {
+              onSuccess: () => {
+                resetForm();
+                handleSelectTask({});
+              },
+            });
+      }
     },
   });
 
@@ -91,8 +104,7 @@ export default function TaskForm() {
           <MenuItem value="done">Done</MenuItem>
         </TextField>
 
-        {/* Submit Button */}
-        <Button
+\        <Button
           type="submit"
           variant="contained"
           color="primary"
@@ -104,7 +116,7 @@ export default function TaskForm() {
             borderRadius: "12px",
           }}
         >
-          Add Task
+           {selectedTask.id ? "Update" :"Add"}
         </Button>
       </form>
     </Box>
