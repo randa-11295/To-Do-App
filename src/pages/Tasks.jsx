@@ -7,17 +7,14 @@ import { useDeleteTodo } from "../hooks/useDeleteTodo";
 import { useGetTodos } from "../hooks/useGetTodos";
 import { toDoTypes } from "../utils/consts";
 import { useSnackbar } from "notistack";
+import TaskCard from "../components/cards/TaskCard";
 import {
   taskPageLayoutStyle,
   searchInputStyle,
   toDoColumnsStyle,
   tasksSectionStyle,
 } from "../utils/styleConsts/taskPageStyleConsts";
-
-import {
-  DndContext,
-  closestCenter,
-} from "@dnd-kit/core";
+import { DndContext, closestCenter, DragOverlay } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 
 const Tasks = () => {
@@ -25,6 +22,8 @@ const Tasks = () => {
   const [selectedTask, setSelectedTask] = useState({});
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTask, setActiveTask] = useState(null);
+
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
   const { enqueueSnackbar } = useSnackbar();
@@ -96,48 +95,60 @@ const Tasks = () => {
       searchedTasks[column]?.some((task) => task.id === id)
     );
   };
+  const handleDragStart = (event) => {
+  const { active } = event;
+  const container = findContainer(active.id);
+  if (!container) return;
 
-  const handleDragEnd = (event) => {
-    const { active, over } = event;
-    if (!over) return;
+  const task = filteredTasks[container].find((t) => t.id === active.id);
+  setActiveTask(task);
+};
 
-    const activeContainer = findContainer(active.id);
-    const overContainer = findContainer(over.id) || over.id;
 
-    if (activeContainer === overContainer) {
-      // reorder within same column
-      setFilteredTasks((prev) => {
-        const newItems = arrayMove(
-          prev[activeContainer],
-          prev[activeContainer].findIndex((t) => t.id === active.id),
-          prev[activeContainer].findIndex((t) => t.id === over.id)
-        );
-        return { ...prev, [activeContainer]: newItems };
-      });
-    } else {
-      // move between columns
-      setFilteredTasks((prev) => {
-        const sourceItems = [...prev[activeContainer]];
-        const destItems = [...prev[overContainer]];
+const handleDragEnd = (event) => {
+  const { active, over } = event;
+  if (!over) return;
 
-        const movedTask = sourceItems.find((t) => t.id === active.id);
-        sourceItems.splice(sourceItems.indexOf(movedTask), 1);
+  const activeContainer = findContainer(active.id);
+  const overContainer = findContainer(over.id) || over.id;
 
-        const overIndex = prev[overContainer].findIndex((t) => t.id === over.id);
-        if (overIndex >= 0) {
-          destItems.splice(overIndex + 1, 0, { ...movedTask, column: overContainer });
-        } else {
-          destItems.push({ ...movedTask, column: overContainer });
-        }
+  if (activeContainer === overContainer) {
+    setFilteredTasks((prev) => {
+      const reordered = arrayMove(
+        prev[activeContainer],
+        prev[activeContainer].findIndex((t) => t.id === active.id),
+        prev[activeContainer].findIndex((t) => t.id === over.id)
+      );
+      return { ...prev, [activeContainer]: reordered };
+    });
+  } else {
+    setFilteredTasks((prev) => {
+      const sourceItems = [...prev[activeContainer]];
+      const destItems = [...prev[overContainer]];
 
-        return {
-          ...prev,
-          [activeContainer]: sourceItems,
-          [overContainer]: destItems,
-        };
-      });
-    }
-  };
+      const movedTaskIndex = sourceItems.findIndex((t) => t.id === active.id);
+      const [movedTask] = sourceItems.splice(movedTaskIndex, 1);
+
+      const updatedTask = { ...movedTask, column: overContainer };
+      const overIndex = destItems.findIndex((t) => t.id === over.id);
+
+      if (overIndex >= 0) {
+        destItems.splice(overIndex + 1, 0, updatedTask);
+      } else {
+        destItems.push(updatedTask);
+      }
+
+      return {
+        ...prev,
+        [activeContainer]: sourceItems,
+        [overContainer]: destItems,
+      };
+    });
+  }
+
+  setActiveTask(null);
+};
+
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (isError) return <Typography color="error">{error.message}</Typography>;
@@ -171,7 +182,7 @@ const Tasks = () => {
         </Stack>
 
         {/* Drag and Drop */}
-        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <DndContext collisionDetection={closestCenter} onDragStart={handleDragStart}  onDragEnd={handleDragEnd}>
           <Grid container spacing={3} mt={2}>
             {toDoTypes.map((column) => (
               <Grid
@@ -190,6 +201,15 @@ const Tasks = () => {
               </Grid>
             ))}
           </Grid>
+            <DragOverlay>
+    {activeTask ? (
+      <TaskCard
+        task={activeTask}
+        handleDeleteTask={handleDeleteTask}
+        handleUpdateTask={handleUpdateTask}
+      />
+    ) : null}
+  </DragOverlay>
         </DndContext>
       </Stack>
 
