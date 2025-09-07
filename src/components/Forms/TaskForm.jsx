@@ -1,28 +1,14 @@
 import { useFormik } from "formik";
-import { MenuItem, Box , Button  } from "@mui/material";
+import { MenuItem, Box, Button } from "@mui/material";
 import { useAddTodo } from "../../hooks/useAddTodo";
-import { useEffect } from "react";
 import { toDoSchema } from "../../validation/todoSchema";
 import { useUpdateTodo } from "../../hooks/useUpdateTodo";
 import ReusableTextField from "../Inputs/ReusableTextField";
 
-export default function TaskForm({ selectedTask, handleSelectTask }) {
-  const {
-    mutate: addTask,
-    isPending: isAddingLoading,
-    isSuccess,
-    isError,
-    error,
-  } = useAddTodo();
+export default function TaskForm({ selectedTask, flowUpCallThaAPI }) {
 
-  const {
-    mutate: updateTask,
-    isPending: isUpdatingLoading,
-  } = useUpdateTodo();
-
-  useEffect(() => {
-    console.log({ isAddingLoading, isSuccess, isError, error });
-  }, [isAddingLoading, isSuccess, isError, error]);
+  const { mutate: addTask, isPending: isAddingLoading } = useAddTodo();
+  const { mutate: updateTask, isPending: isUpdatingLoading } = useUpdateTodo();
 
   const formik = useFormik({
     initialValues: selectedTask.id
@@ -33,17 +19,18 @@ export default function TaskForm({ selectedTask, handleSelectTask }) {
           column: "backlog",
         },
     validationSchema: toDoSchema,
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: (values) => {
       if (!selectedTask.id) {
         addTask(values, {
-          onSuccess: () => resetForm(),
+          onSuccess: () =>
+            flowUpCallThaAPI("Task added successfully", "success"),
+          onError: () => flowUpCallThaAPI("Failed to add task", "error"),
         });
       } else {
         updateTask(values, {
-          onSuccess: () => {
-            resetForm();
-            handleSelectTask({});
-          },
+          onSuccess: () =>
+            flowUpCallThaAPI("Task updated successfully", "success"),
+          onError: () => flowUpCallThaAPI("Failed to Update task", "error"),
         });
       }
     },
@@ -74,7 +61,9 @@ export default function TaskForm({ selectedTask, handleSelectTask }) {
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          error={formik.touched.description && Boolean(formik.errors.description)}
+          error={
+            formik.touched.description && Boolean(formik.errors.description)
+          }
           helperText={formik.touched.description && formik.errors.description}
           multiline
           rows={3}

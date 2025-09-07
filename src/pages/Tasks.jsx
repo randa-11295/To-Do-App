@@ -6,6 +6,7 @@ import TaskForm from "../components/Forms/TaskForm";
 import { useDeleteTodo } from "../hooks/useDeleteTodo";
 import { useGetTodos } from "../hooks/useGetTodos";
 import { toDoTypes } from "../utils/consts";
+import { useSnackbar } from "notistack";
 import {
   taskPageLayoutStyle,
   searchInputStyle,
@@ -19,7 +20,7 @@ const Tasks = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
-
+  const { enqueueSnackbar } = useSnackbar();
   useEffect(() => {
     if (!tasks) return;
     const grouped = {
@@ -74,6 +75,13 @@ const Tasks = () => {
 
   if (isLoading) return <Typography>Loading...</Typography>;
   if (isError) return <Typography color="error">{error.message}</Typography>;
+
+  const flowUpCallThaAPI = (massage, variant) => {
+    handleControlPopup(false);
+    enqueueSnackbar(massage, {
+      variant,
+    });
+  };
 
   return (
     <>
@@ -151,8 +159,8 @@ const Tasks = () => {
         handleClose={() => handleControlPopup(false)}
       >
         <TaskForm
+          flowUpCallThaAPI={flowUpCallThaAPI}
           selectedTask={selectedTask}
-          handleSelectTask={setSelectedTask}
         />
       </PopupReusable>
     </>

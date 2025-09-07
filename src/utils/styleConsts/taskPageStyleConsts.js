@@ -1,8 +1,8 @@
 export const taskPageLayoutStyle = {
   backgroundColor: "#f9f9f9",
   p: 4,
-  height: { md: "100vh" },
-  overflow: { md: "hidden" },
+  minHeight: "100vh",
+  overflow: { lg: "hidden" },
 };
 
 export const searchInputStyle = {
@@ -17,4 +17,4 @@ export const toDoColumnsStyle = {
   boxShadow: 2,
 };
 
-export const tasksSectionStyle = { height: { md: "80vh" }, overflow: "auto" };
+export const tasksSectionStyle = { height: { lg: "80vh" }, overflow: "auto" };
