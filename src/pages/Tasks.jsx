@@ -1,12 +1,11 @@
 import { useEffect, useState, useMemo } from "react";
-import { Typography, Grid, TextField, Button, Box } from "@mui/material";
+import { Typography, Grid, TextField, Button, Box, Stack } from "@mui/material";
 import TaskCard from "../components/cards/TaskCard";
 import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
 import { useDeleteTodo } from "../hooks/useDeleteTodo";
 import { useGetTodos } from "../hooks/useGetTodos";
 import { toDoTypes } from "../utils/consts";
-
 const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState({});
   const [selectedTask, setSelectedTask] = useState({});
@@ -73,8 +72,14 @@ const Tasks = () => {
 
   return (
     <>
-      <Box sx={{ backgroundColor: "#f9f9f9", p: 4, minHeight: "100vh" }}>
-        {/* 🔍 Search + Add Task */}
+      <Stack
+        sx={{
+          backgroundColor: "#f9f9f9",
+          p: 4,
+          height: {md: "100vh"},
+          overflow: {md:"hidden"},
+        }}
+      >
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12}>
             <TextField
@@ -99,51 +104,51 @@ const Tasks = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3} >
+        <Grid container spacing={3} mt={2}>
           {toDoTypes.map((column) => (
             <Grid
-            size={{ xs: 12, md: 6 , lg: 3 }}
+              size={{ xs: 12, md: 6, lg: 3 }}
               key={column}
               item
               sx={{
-                height: "80vh",
-                overflowY: "auto",
-                backgroundColor: "#fff",
+                backgroundColor: "white",
                 borderRadius: 2,
-                boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                p: 2,
+                boxShadow: 2,
               }}
             >
-              {/* Column Title */}
               <Typography
                 variant="h6"
                 color="primary"
                 fontWeight={700}
                 textTransform="capitalize"
-                mb={2}
+               mx={2} mt={2}
               >
                 {column.replace("_", " ")}
               </Typography>
+              <Box sx={{ height:{ md: "80vh"}, overflow:"auto" ,}}>
+                <Box m={2}>
 
-              {/* If no tasks */}
-              {searchedTasks[column]?.length === 0 ? (
-                <Typography variant="body2" color="text.secondary">
-                  No tasks found.
-                </Typography>
-              ) : (
-                searchedTasks[column]?.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    handleDeleteTask={handleDeleteTask}
-                    handleUpdateTask={handleUpdateTask}
-                  />
-                ))
-              )}
+                {/* If no tasks */}
+                {searchedTasks[column]?.length === 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    No tasks found.
+                  </Typography>
+                ) : (
+                  searchedTasks[column]?.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      handleDeleteTask={handleDeleteTask}
+                      handleUpdateTask={handleUpdateTask}
+                    />
+                  ))
+                )}
+                </Box>
+              </Box>
             </Grid>
           ))}
         </Grid>
-      </Box>
+      </Stack>
 
       <PopupReusable
         open={isPopupOpen}
