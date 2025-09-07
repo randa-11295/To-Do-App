@@ -60,7 +60,10 @@ const Tasks = () => {
   }, [searchTerm, filteredTasks]);
 
   const handleDeleteTask = (taskId) => {
-    deleteTask(taskId);
+    deleteTask(taskId, {
+      onSuccess: () => flowUpCallThaAPI("Task Deleted successfully", "success"),
+      onError: () => flowUpCallThaAPI("Failed to Deleted task", "error"),
+    });
   };
 
   const handleUpdateTask = (task) => {
