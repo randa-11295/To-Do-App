@@ -1,8 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
-import { Typography, Grid, TextField, Button, Box, Stack } from "@mui/material";
-import TaskCard from "../components/cards/TaskCard";
+import { Typography, Grid, TextField, Button, Stack } from "@mui/material";
 import PopupReusable from "../components/PopUp/PopupReusable";
 import TaskForm from "../components/Forms/TaskForm";
+import DraggableTasksColumn from "../components/DragAndDrop/DraggableTasksColumn";
 import { useDeleteTodo } from "../hooks/useDeleteTodo";
 import { useGetTodos } from "../hooks/useGetTodos";
 import { toDoTypes } from "../utils/consts";
@@ -13,6 +13,13 @@ import {
   toDoColumnsStyle,
   tasksSectionStyle,
 } from "../utils/styleConsts/taskPageStyleConsts";
+
+import {
+  DndContext,
+  closestCenter,
+} from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+
 const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState({});
   const [selectedTask, setSelectedTask] = useState({});
@@ -21,6 +28,7 @@ const Tasks = () => {
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
   const { enqueueSnackbar } = useSnackbar();
+
   useEffect(() => {
     if (!tasks) return;
     const grouped = {
@@ -62,7 +70,7 @@ const Tasks = () => {
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId, {
       onSuccess: () => handleApiResponse("Task Deleted successfully", "success"),
-      onError: () => handleApiResponse("Failed to Deleted task", "error"),
+      onError: () => handleApiResponse("Failed to delete task", "error"),
     });
   };
 
@@ -76,9 +84,6 @@ const Tasks = () => {
     if (!val) setSelectedTask({});
   };
 
-  if (isLoading) return <Typography>Loading...</Typography>;
-  if (isError) return <Typography color="error">{error.message}</Typography>;
-
   const handleApiResponse = (massage, variant) => {
     handleControlPopup(false);
     enqueueSnackbar(massage, {
@@ -86,9 +91,61 @@ const Tasks = () => {
     });
   };
 
+  const findContainer = (id) => {
+    return Object.keys(searchedTasks).find((column) =>
+      searchedTasks[column]?.some((task) => task.id === id)
+    );
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeContainer = findContainer(active.id);
+    const overContainer = findContainer(over.id) || over.id;
+
+    if (activeContainer === overContainer) {
+      // reorder within same column
+      setFilteredTasks((prev) => {
+        const newItems = arrayMove(
+          prev[activeContainer],
+          prev[activeContainer].findIndex((t) => t.id === active.id),
+          prev[activeContainer].findIndex((t) => t.id === over.id)
+        );
+        return { ...prev, [activeContainer]: newItems };
+      });
+    } else {
+      // move between columns
+      setFilteredTasks((prev) => {
+        const sourceItems = [...prev[activeContainer]];
+        const destItems = [...prev[overContainer]];
+
+        const movedTask = sourceItems.find((t) => t.id === active.id);
+        sourceItems.splice(sourceItems.indexOf(movedTask), 1);
+
+        const overIndex = prev[overContainer].findIndex((t) => t.id === over.id);
+        if (overIndex >= 0) {
+          destItems.splice(overIndex + 1, 0, { ...movedTask, column: overContainer });
+        } else {
+          destItems.push({ ...movedTask, column: overContainer });
+        }
+
+        return {
+          ...prev,
+          [activeContainer]: sourceItems,
+          [overContainer]: destItems,
+        };
+      });
+    }
+  };
+
+  if (isLoading) return <Typography>Loading...</Typography>;
+  if (isError) return <Typography color="error">{error.message}</Typography>;
+
   return (
     <>
       <Stack sx={taskPageLayoutStyle}>
+        {/* Search + Add Task */}
         <Stack
           alignItems="center"
           gap={2}
@@ -103,7 +160,6 @@ const Tasks = () => {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-
           <Button
             variant="contained"
             color="primary"
@@ -114,48 +170,30 @@ const Tasks = () => {
           </Button>
         </Stack>
 
-        <Grid container spacing={3} mt={2}>
-          {toDoTypes.map((column) => (
-            <Grid
-              size={{ xs: 12, md: 6, lg: 3 }}
-              key={column}
-              item
-              sx={toDoColumnsStyle}
-            >
-              <Typography
-                variant="h6"
-                color="primary"
-                fontWeight={700}
-                textTransform="capitalize"
-                mx={2}
-                mt={2}
+        {/* Drag and Drop */}
+        <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <Grid container spacing={3} mt={2}>
+            {toDoTypes.map((column) => (
+              <Grid
+                size={{ xs: 12, md: 6, lg: 3 }}
+                key={column}
+                item
+                sx={toDoColumnsStyle}
               >
-                {column.replace("_", " ")}
-              </Typography>
-              <Box sx={tasksSectionStyle}>
-                <Box m={2}>
-                  {/* If no tasks */}
-                  {searchedTasks[column]?.length === 0 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      No tasks found.
-                    </Typography>
-                  ) : (
-                    searchedTasks[column]?.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        handleDeleteTask={handleDeleteTask}
-                        handleUpdateTask={handleUpdateTask}
-                      />
-                    ))
-                  )}
-                </Box>
-              </Box>
-            </Grid>
-          ))}
-        </Grid>
+                <DraggableTasksColumn
+                  column={column}
+                  tasks={searchedTasks[column] || []}
+                  handleDeleteTask={handleDeleteTask}
+                  handleUpdateTask={handleUpdateTask}
+                  tasksSectionStyle={tasksSectionStyle}
+                />
+              </Grid>
+            ))}
+          </Grid>
+        </DndContext>
       </Stack>
 
+      {/* Popup for Add/Edit Task */}
       <PopupReusable
         open={isPopupOpen}
         title={selectedTask.id ? "Edit Task" : "Add New Task"}
