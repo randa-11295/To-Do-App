@@ -61,8 +61,8 @@ const Tasks = () => {
 
   const handleDeleteTask = (taskId) => {
     deleteTask(taskId, {
-      onSuccess: () => flowUpCallThaAPI("Task Deleted successfully", "success"),
-      onError: () => flowUpCallThaAPI("Failed to Deleted task", "error"),
+      onSuccess: () => handleApiResponse("Task Deleted successfully", "success"),
+      onError: () => handleApiResponse("Failed to Deleted task", "error"),
     });
   };
 
@@ -79,7 +79,7 @@ const Tasks = () => {
   if (isLoading) return <Typography>Loading...</Typography>;
   if (isError) return <Typography color="error">{error.message}</Typography>;
 
-  const flowUpCallThaAPI = (massage, variant) => {
+  const handleApiResponse = (massage, variant) => {
     handleControlPopup(false);
     enqueueSnackbar(massage, {
       variant,
@@ -162,7 +162,7 @@ const Tasks = () => {
         handleClose={() => handleControlPopup(false)}
       >
         <TaskForm
-          flowUpCallThaAPI={flowUpCallThaAPI}
+          handleApiResponse={handleApiResponse}
           selectedTask={selectedTask}
         />
       </PopupReusable>

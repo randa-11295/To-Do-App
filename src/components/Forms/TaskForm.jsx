@@ -5,7 +5,7 @@ import { toDoSchema } from "../../validation/todoSchema";
 import { useUpdateTodo } from "../../hooks/useUpdateTodo";
 import ReusableTextField from "../Inputs/ReusableTextField";
 
-export default function TaskForm({ selectedTask, flowUpCallThaAPI }) {
+export default function TaskForm({ selectedTask, handleApiResponse }) {
 
   const { mutate: addTask, isPending: isAddingLoading } = useAddTodo();
   const { mutate: updateTask, isPending: isUpdatingLoading } = useUpdateTodo();
@@ -23,14 +23,14 @@ export default function TaskForm({ selectedTask, flowUpCallThaAPI }) {
       if (!selectedTask.id) {
         addTask(values, {
           onSuccess: () =>
-            flowUpCallThaAPI("Task added successfully", "success"),
-          onError: () => flowUpCallThaAPI("Failed to add task", "error"),
+            handleApiResponse("Task added successfully", "success"),
+          onError: () => handleApiResponse("Failed to add task", "error"),
         });
       } else {
         updateTask(values, {
           onSuccess: () =>
-            flowUpCallThaAPI("Task updated successfully", "success"),
-          onError: () => flowUpCallThaAPI("Failed to Update task", "error"),
+            handleApiResponse("Task updated successfully", "success"),
+          onError: () => handleApiResponse("Failed to Update task", "error"),
         });
       }
     },
