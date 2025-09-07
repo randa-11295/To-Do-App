@@ -6,12 +6,17 @@ import TaskForm from "../components/Forms/TaskForm";
 import { useDeleteTodo } from "../hooks/useDeleteTodo";
 import { useGetTodos } from "../hooks/useGetTodos";
 import { toDoTypes } from "../utils/consts";
+import {
+  taskPageLayoutStyle,
+  searchInputStyle,
+  toDoColumnsStyle,
+  tasksSectionStyle,
+} from "../utils/styleConsts/taskPageStyleConsts";
 const Tasks = () => {
   const [filteredTasks, setFilteredTasks] = useState({});
   const [selectedTask, setSelectedTask] = useState({});
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-
   const { data: tasks, isLoading, isError, error } = useGetTodos();
   const { mutate: deleteTask } = useDeleteTodo();
 
@@ -72,37 +77,31 @@ const Tasks = () => {
 
   return (
     <>
-      <Stack
-        sx={{
-          backgroundColor: "#f9f9f9",
-          p: 4,
-          height: {md: "100vh"},
-          overflow: {md:"hidden"},
-        }}
-      >
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12}>
-            <TextField
-              sx={{ backgroundColor: "white", borderRadius: 1 }}
-              placeholder="Search tasks..."
-              size="small"
-              variant="outlined"
-              fullWidth
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={() => handleControlPopup(true)}
-            >
-              Add Task
-            </Button>
-          </Grid>
-        </Grid>
+      <Stack sx={taskPageLayoutStyle}>
+        <Stack
+          alignItems="center"
+          gap={2}
+          direction={{ xs: "column", sm: "row" }}
+        >
+          <TextField
+            sx={searchInputStyle}
+            placeholder="Search tasks..."
+            size="small"
+            variant="outlined"
+            fullWidth
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+
+          <Button
+            variant="contained"
+            color="primary"
+            sx={{ width: { xs: "100%", sm: "140px" } }}
+            onClick={() => handleControlPopup(true)}
+          >
+            Add Task
+          </Button>
+        </Stack>
 
         <Grid container spacing={3} mt={2}>
           {toDoTypes.map((column) => (
@@ -110,39 +109,35 @@ const Tasks = () => {
               size={{ xs: 12, md: 6, lg: 3 }}
               key={column}
               item
-              sx={{
-                backgroundColor: "white",
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
+              sx={toDoColumnsStyle}
             >
               <Typography
                 variant="h6"
                 color="primary"
                 fontWeight={700}
                 textTransform="capitalize"
-               mx={2} mt={2}
+                mx={2}
+                mt={2}
               >
                 {column.replace("_", " ")}
               </Typography>
-              <Box sx={{ height:{ md: "80vh"}, overflow:"auto" ,}}>
+              <Box sx={tasksSectionStyle}>
                 <Box m={2}>
-
-                {/* If no tasks */}
-                {searchedTasks[column]?.length === 0 ? (
-                  <Typography variant="body2" color="text.secondary">
-                    No tasks found.
-                  </Typography>
-                ) : (
-                  searchedTasks[column]?.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      handleDeleteTask={handleDeleteTask}
-                      handleUpdateTask={handleUpdateTask}
-                    />
-                  ))
-                )}
+                  {/* If no tasks */}
+                  {searchedTasks[column]?.length === 0 ? (
+                    <Typography variant="body2" color="text.secondary">
+                      No tasks found.
+                    </Typography>
+                  ) : (
+                    searchedTasks[column]?.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        handleDeleteTask={handleDeleteTask}
+                        handleUpdateTask={handleUpdateTask}
+                      />
+                    ))
+                  )}
                 </Box>
               </Box>
             </Grid>
