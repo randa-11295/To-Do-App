@@ -45,8 +45,7 @@ Each task follows this structure:
 
 1. **Clone the repository**
    \`\`\`bash
-   git clone <repository-url>
-   cd mindluster
+   git clone [<repository-url>](https://github.com/randa-11295/To-Do-App.git)
    \`\`\`
 
 2. **Install dependencies**
